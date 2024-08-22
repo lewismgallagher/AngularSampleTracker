@@ -7,15 +7,12 @@
       <tr>
         <th scope="col">Id</th>
         <th scope="col">Name</th>
-        <th scope="col">Cols</th>
         <th scope="col">Rows</th>
+        <th scope="col">Columns</th>
       </tr>
     </thead>
     <tbody>
-      <app-rack-list-item
-        *ngFor="let housingLocation of filteredLocationList"
-        [housingLocation]="housingLocation"
-      >
+      <app-rack-list-item *ngFor="let r of rackList" [rack]="r">
       </app-rack-list-item>
     </tbody>
   </table>
