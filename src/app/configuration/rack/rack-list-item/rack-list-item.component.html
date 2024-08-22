@@ -1,0 +1,11 @@
+<tr>
+  <th>{{ rack.id }}</th>
+  <td>{{ rack.name }}</td>
+  <td>{{ rack.rows }}</td>
+  <td>{{ rack.columns }}</td>
+  <td>
+    <button [routerLink]="['/', rack.id]" class="btn btn-outline-secondary">
+      Edit
+    </button>
+  </td>
+</tr>
