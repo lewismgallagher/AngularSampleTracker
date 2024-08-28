@@ -1,6 +1,6 @@
 export interface Rack {
   id: number;
-  name: string;
-  rows: number;
-  columns: number;
+  rackName: string;
+  numberOfRows: number;
+  numberOfColumns: number;
 }

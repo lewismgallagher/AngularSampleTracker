@@ -1,17 +1,21 @@
 import { Injectable } from '@angular/core';
 import { RackListItemComponent } from '../configuration/rack/rack-list-item/rack-list-item.component';
+import { Rack } from '../interfaces/rack';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RackConfigServiceService {
   // TODO add proper url
-  url = 'Https://LocalHost';
+  url = 'https://localhost:7201/configuration/racks';
 
-  constructor() {}
+  allRacks!: Rack[];
 
-  async getAllRacks(): Promise<RackListItemComponent[]> {
-    const data = await fetch(this.url);
-    return (await data.json()) ?? [];
+  constructor(private http: HttpClient) {}
+
+  getAllRacks(): Observable<Rack[]> {
+    return this.http.get<Rack[]>('https://localhost:7201/configuration/racks');
   }
 }

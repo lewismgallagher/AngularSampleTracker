@@ -1,19 +1,30 @@
 <h3 class="mb-3">Rack Configuration</h3>
 
-<button class="btn btn-outline-secondary">Create New Rack</button>
+<button class="mb-3 btn btn-outline-secondary">Create New Rack</button>
 <div class="">
   <table class="table table-hover align-middle text-center">
-    <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Rows</th>
+      <th>Columns</th>
+      <th>Edit</th>
+    </tr>
+    <tbody *ngFor="let rack of rackList">
       <tr>
-        <th scope="col">Id</th>
-        <th scope="col">Name</th>
-        <th scope="col">Rows</th>
-        <th scope="col">Columns</th>
+        <td>{{ rack.id }}</td>
+        <td>{{ rack.rackName }}</td>
+        <td>{{ rack.numberOfRows }}</td>
+        <td>{{ rack.numberOfColumns }}</td>
+        <td>
+          <button
+            [routerLink]="['/', rack.id]"
+            class="btn btn-outline-secondary"
+          >
+            Edit
+          </button>
+        </td>
       </tr>
-    </thead>
-    <tbody>
-      <app-rack-list-item *ngFor="let r of rackList" [rack]="r">
-      </app-rack-list-item>
     </tbody>
   </table>
 </div>
