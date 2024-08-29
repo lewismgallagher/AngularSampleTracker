@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RackListItemComponent } from './rack-list-item.component';
+import { RackDetailsComponent } from './rack-details.component';
 
-describe('RackListItemComponent', () => {
-  let component: RackListItemComponent;
-  let fixture: ComponentFixture<RackListItemComponent>;
+describe('RackDetailsComponent', () => {
+  let component: RackDetailsComponent;
+  let fixture: ComponentFixture<RackDetailsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RackListItemComponent]
+      imports: [RackDetailsComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RackListItemComponent);
+    fixture = TestBed.createComponent(RackDetailsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

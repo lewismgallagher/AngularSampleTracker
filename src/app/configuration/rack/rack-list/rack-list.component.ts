@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { RackListItemComponent } from '../rack-list-item/rack-list-item.component';
-import { RackConfigServiceService } from '../../../services/rack-config-service.service';
+import { Component, inject, OnInit } from '@angular/core';
+import { RackConfigService } from '../../../services/rack-config.service';
 import { response } from 'express';
 import { NgFor } from '@angular/common';
 import { Rack } from '../../../interfaces/rack';
@@ -10,15 +9,18 @@ import { RouterLink, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-rack-list',
   standalone: true,
-  imports: [RackListItemComponent, NgFor, RouterModule],
+  imports: [NgFor, RouterModule],
   templateUrl: './rack-list.component.html',
   styleUrl: './rack-list.component.css',
 })
-export class RackListComponent {
+export class RackListComponent implements OnInit {
   rackList: Rack[] = [];
-  rackListComponents: RackListItemComponent[] = [];
-  rackService: RackConfigServiceService = inject(RackConfigServiceService);
-  constructor() {
+
+  rackService: RackConfigService = inject(RackConfigService);
+
+  constructor() {}
+
+  ngOnInit(): void {
     this.rackService.getAllRacks().subscribe({
       next: (response: Rack[]) => {
         this.rackList = response;

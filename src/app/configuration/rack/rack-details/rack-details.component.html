@@ -1,0 +1,47 @@
+<a
+  class="btn btn-outline-secondary mb-3"
+  [routerLink]="['/Configuration/Racks']"
+  >Return To List</a
+>
+<form [formGroup]="rackForm">
+  <div>
+    <div class="mb-3">
+      <label class="form-label">Id:</label>
+      <label class="form-label">{{ rack.id }}</label>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Name</label>
+      <input
+        class="form-control"
+        type="text"
+        id="name"
+        formControlName="name"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Rows</label>
+      <input
+        class="form-control"
+        type="number"
+        id="rows"
+        formControlName="rows"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Columns</label>
+      <input
+        class="form-control"
+        type="number"
+        id="columns"
+        formControlName="columns"
+      />
+    </div>
+
+    <button type="submit" class="btn btn-outline-success m-3">Save</button>
+
+    <button type="button" class="btn btn-outline-danger m-3">Delete</button>
+  </div>
+</form>

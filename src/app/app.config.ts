@@ -8,7 +8,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideClientHydration(),
+    //TODO look into hydration and why it is causing problems with refresh.
+    // provideClientHydration(),
     provideHttpClient(withFetch()),
   ],
 };
