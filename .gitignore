@@ -400,5 +400,5 @@ FodyWeavers.xsd
 
 #angular
 *.map.js
-/.angular/cache/18.2.1
+/.angular/cache
 
