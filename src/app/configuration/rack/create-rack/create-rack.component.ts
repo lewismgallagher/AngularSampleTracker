@@ -1,11 +1,18 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RackConfigService } from '../../../services/rack-config.service';
-import { response } from 'express';
 import { NgFor } from '@angular/common';
 import { PostRack } from '../../../interfaces/postRack';
 import { error } from 'console';
-import { RouterLink, RouterModule } from '@angular/router';
+import {
+  RedirectCommand,
+  Router,
+  RouterLink,
+  RouterModule,
+} from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { unsubscribe } from 'diagnostics_channel';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-create-rack',
@@ -16,6 +23,11 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 })
 export class CreateRackComponent {
   rackService = inject(RackConfigService);
+
+  constructor(private router: Router) {}
+
+  success = false;
+  errormessage = '';
 
   rackForm = new FormGroup({
     name: new FormControl(''),
@@ -30,7 +42,25 @@ export class CreateRackComponent {
       (rack.numberOfColumns = this.rackForm.value.columns ?? 0),
       (rack.numberOfRows = this.rackForm.value.rows ?? 0);
 
-    var success = this.rackService.createRack(rack);
-    // console.log(success);
+    var postRequest = this.rackService
+      .createRack(rack)
+      .pipe(take(1))
+      .subscribe({
+        next: (createdRackFromServer) => {
+          console.log(createdRackFromServer);
+          this.success = true;
+          console.log(this.success);
+        },
+        error: (error: HttpErrorResponse) => {
+          console.log(
+            `failed to create new rack. Response from server: "HTTP Statuscode: ${error.status}: ${error.error}"`
+          );
+          this.errormessage = error.message;
+        },
+        complete: () => {
+          //TODO redirect to list view with success or error
+          this.router.navigate(['Configuration/Racks/:CreatedMessage']);
+        },
+      });
   }
 }
