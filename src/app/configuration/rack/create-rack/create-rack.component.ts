@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RackConfigService } from '../../../services/rack-config.service';
-import { NgFor } from '@angular/common';
 import { PostRack } from '../../../interfaces/postRack';
+import { ActivatedRoute, Route } from '@angular/router';
 import { error } from 'console';
 import {
   RedirectCommand,
@@ -11,9 +11,7 @@ import {
 } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { unsubscribe } from 'diagnostics_channel';
 import { take } from 'rxjs';
-
 @Component({
   selector: 'app-create-rack',
   standalone: true,
@@ -47,9 +45,7 @@ export class CreateRackComponent {
       .pipe(take(1))
       .subscribe({
         next: (createdRackFromServer) => {
-          console.log(createdRackFromServer);
           this.success = true;
-          console.log(this.success);
         },
         error: (error: HttpErrorResponse) => {
           console.log(
@@ -58,8 +54,8 @@ export class CreateRackComponent {
           this.errormessage = error.message;
         },
         complete: () => {
-          //TODO redirect to list view with success or error
-          this.router.navigate(['Configuration/Racks/:CreatedMessage']);
+          //TODO show success toast
+          this.router.navigateByUrl('Configuration/Racks');
         },
       });
   }
