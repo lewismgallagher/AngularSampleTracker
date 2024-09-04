@@ -22,7 +22,7 @@
         class="text-danger"
         *ngIf="rackForm.controls.name.errors?.['required']"
       >
-        Error, name cannot be empty
+        Name cannot be empty
       </span>
     </div>
 
@@ -38,7 +38,7 @@
         class="text-danger"
         *ngIf="rackForm.controls.rows.errors?.['min'] || rackForm.controls.rows.errors?.['required']"
       >
-        Error, rows cannot be less than 0.
+        Rows cannot be less than 0.
       </span>
     </div>
 
@@ -55,7 +55,7 @@
         class="text-danger"
         *ngIf="rackForm.controls.columns.errors?.['min'] || rackForm.controls.columns.errors?.['required'] "
       >
-        Error, rows cannot be less than 0.
+        Columns cannot be less than 0.
       </span>
     </div>
 
