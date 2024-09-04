@@ -28,4 +28,14 @@ export class RackConfigService {
     var request = this.http.post(this.url + '/create/', rack, HTTP_OPTIONS);
     return request;
   }
+
+  updateRack(rack: Rack): Observable<object> {
+    var request = this.http.put(this.url + '/update/', rack, HTTP_OPTIONS);
+    return request;
+  }
+
+  deleteRack(id: number): Observable<object> {
+    var request = this.http.delete(this.url + '/delete?id=' + id);
+    return request;
+  }
 }
