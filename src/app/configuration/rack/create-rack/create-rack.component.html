@@ -13,6 +13,12 @@
         id="name"
         formControlName="name"
       />
+      <span
+        class="text-danger"
+        *ngIf="rackForm.controls.name.errors?.['required']"
+      >
+        Error, name cannot be empty
+      </span>
     </div>
 
     <div class="mb-3">
@@ -23,6 +29,12 @@
         id="rows"
         formControlName="rows"
       />
+      <span
+        class="text-danger"
+        *ngIf="rackForm.controls.rows.errors?.['min'] || rackForm.controls.rows.errors?.['required']"
+      >
+        Error, rows cannot be less than 0.
+      </span>
     </div>
 
     <div class="mb-3">
@@ -33,6 +45,12 @@
         id="columns"
         formControlName="columns"
       />
+      <span
+        class="text-danger"
+        *ngIf="rackForm.controls.columns.errors?.['min'] || rackForm.controls.columns.errors?.['required'] "
+      >
+        Error, rows cannot be less than 0.
+      </span>
     </div>
 
     <button type="submit" class="btn btn-outline-success m-3">Save</button>

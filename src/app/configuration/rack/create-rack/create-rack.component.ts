@@ -9,15 +9,21 @@ import {
   RouterLink,
   RouterModule,
 } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { take } from 'rxjs';
 import { AlertService } from '../../../services/alert.service';
 import { AlertEnum } from '../../../enums/alert.enum';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-create-rack',
   standalone: true,
-  imports: [RouterModule, RouterLink, ReactiveFormsModule],
+  imports: [RouterModule, RouterLink, ReactiveFormsModule, CommonModule],
   templateUrl: './create-rack.component.html',
   styleUrl: './create-rack.component.css',
 })
@@ -29,12 +35,18 @@ export class CreateRackComponent {
   alertTypes = AlertEnum;
 
   rackForm = new FormGroup({
-    name: new FormControl(''),
-    columns: new FormControl(0),
-    rows: new FormControl(0),
+    name: new FormControl(undefined, [
+      Validators.required,
+      Validators.minLength(1),
+    ]),
+    columns: new FormControl(1, [Validators.required, Validators.min(1)]),
+    rows: new FormControl(1, [Validators.required, Validators.min(1)]),
   });
 
   submitForm() {
+    if (this.rackForm.valid === false) {
+      return;
+    }
     var rack = {} as PostRack;
 
     (rack.rackName = this.rackForm.value.name ?? ''),
