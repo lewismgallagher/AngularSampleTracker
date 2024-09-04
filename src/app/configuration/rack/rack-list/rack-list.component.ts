@@ -5,6 +5,8 @@ import { NgFor } from '@angular/common';
 import { Rack } from '../../../interfaces/rack';
 import { error } from 'console';
 import { RouterLink, RouterModule } from '@angular/router';
+import { AlertService } from '../../../services/alert.service';
+import { AlertEnum } from '../../../enums/alert.enum';
 
 @Component({
   selector: 'app-rack-list',

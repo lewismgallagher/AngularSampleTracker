@@ -12,6 +12,8 @@ import {
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { take } from 'rxjs';
+import { AlertService } from '../../../services/alert.service';
+import { AlertEnum } from '../../../enums/alert.enum';
 @Component({
   selector: 'app-create-rack',
   standalone: true,
@@ -21,11 +23,10 @@ import { take } from 'rxjs';
 })
 export class CreateRackComponent {
   rackService = inject(RackConfigService);
+  alertservice: AlertService = inject(AlertService);
+  router: Router = inject(Router);
 
-  constructor(private router: Router) {}
-
-  success = false;
-  errormessage = '';
+  alertTypes = AlertEnum;
 
   rackForm = new FormGroup({
     name: new FormControl(''),
@@ -40,22 +41,29 @@ export class CreateRackComponent {
       (rack.numberOfColumns = this.rackForm.value.columns ?? 0),
       (rack.numberOfRows = this.rackForm.value.rows ?? 0);
 
-    var postRequest = this.rackService
+    this.rackService
       .createRack(rack)
       .pipe(take(1))
       .subscribe({
-        next: (createdRackFromServer) => {
-          this.success = true;
+        next: () => {
+          this.router.navigateByUrl('Configuration/Racks');
+
+          this.alertservice.setAlert({
+            type: this.alertTypes.success,
+            text: 'Rack ' + rack.rackName + ' was saved successfully',
+            headerText: 'Save Successful!',
+          });
+          console.log(rack.rackName);
         },
         error: (error: HttpErrorResponse) => {
           console.log(
             `failed to create new rack. Response from server: "HTTP Statuscode: ${error.status}: ${error.error}"`
           );
-          this.errormessage = error.message;
-        },
-        complete: () => {
-          //TODO show success toast
-          this.router.navigateByUrl('Configuration/Racks');
+          this.alertservice.setAlert({
+            type: this.alertTypes.danger,
+            text: 'Rack failed to save please try again.',
+            headerText: 'Error, Rack not Saved',
+          });
         },
       });
   }

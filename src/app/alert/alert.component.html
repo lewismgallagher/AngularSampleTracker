@@ -1,0 +1,15 @@
+<div
+  role="alert"
+  [ngClass]="['alert', 'alert-' + alert.type, 'alert-dismissible', 'fade show']"
+  *ngIf="alert"
+>
+  <h4 class="alert-heading">{{ alert.headerText }}</h4>
+  {{ alert.text }}
+  <button
+    (click)="OnClose()"
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
