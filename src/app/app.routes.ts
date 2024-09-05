@@ -28,7 +28,7 @@ export const routes: Routes = [
     title: 'Rack Search Page',
   },
   {
-    path: 'Samples/',
+    path: 'Samples/:id',
     component: SamplesComponent,
     title: 'Samples Page',
   },

@@ -17,7 +17,7 @@ export class RackConfigService {
   constructor(private http: HttpClient) {}
 
   getAllRacks(): Observable<Rack[]> {
-    return this.http.get<Rack[]>('https://localhost:7201/configuration/racks');
+    return this.http.get<Rack[]>(this.url);
   }
 
   getRackById(id: number): Observable<Rack> {

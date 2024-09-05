@@ -5,6 +5,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, Subscription } from 'rxjs';
 import HTTP_OPTIONS from '../constants/HttpOptions';
 import { error } from 'console';
+import { Sample } from '../interfaces/sample';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,26 @@ export class SampleRackService {
 
     return this.http.get<Rack[]>(
       this.url + '/racks/search' + idUrlFragment + nameUrlFragment
+    );
+  }
+
+  getRackById(id?: number): Observable<Rack> {
+    return this.http.get<Rack>(`${this.url}/racks?Id=${id}`);
+  }
+
+  getSamplesFromRack(
+    rackId: number,
+    columnNumber: number,
+    rowNumber: number
+  ): Observable<Sample[]> {
+    return this.http.get<Sample[]>(
+      this.url +
+        '?rackId=' +
+        rackId +
+        '&numberOfColumns=' +
+        columnNumber +
+        '&numberOfRows=' +
+        rowNumber
     );
   }
 }
