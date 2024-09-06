@@ -30,6 +30,10 @@ export class SamplesComponent {
     this.getRackAndSamples(rackId);
   }
 
+  public createEmptySample(col: number, row: number, rackId: number): Sample {
+    return { columnNumber: col, rowNumber: row, rackId: rackId };
+  }
+
   public createSampleRack() {
     var counter = 0;
     for (let r = 1; r < this.rack.numberOfRows + 1; r++) {
@@ -37,6 +41,7 @@ export class SamplesComponent {
         if (this.checkSampleExistsInRack(c, r)) {
           continue;
         }
+        this.sampleList.push(this.createEmptySample(c, r, this.rack.id));
       }
     }
   }
@@ -49,11 +54,10 @@ export class SamplesComponent {
 
   public getSamples(id: number, col: number, row: number) {
     console.log(id);
-    this.sampleService.getSamplesFromRack(id, col, row).subscribe({
+    this.sampleService.getSamplesFromRack(id).subscribe({
       next: (response: Sample[]) => {
         this.sampleList = response;
-        console.log(response);
-        console.log(this.sampleList);
+        this.createSampleRack();
       },
       error: (error: Error) => {
         console.log(error);
@@ -62,12 +66,10 @@ export class SamplesComponent {
   }
 
   public getRackAndSamples(id: number) {
-    console.log(id);
     this.sampleService.getRackById(id).subscribe({
       next: (response: Rack) => {
         this.rack = response;
         this.getSamples(id, response.numberOfColumns, response.numberOfRows);
-        console.log(response);
       },
       error: (error: Error) => {
         console.log(error);

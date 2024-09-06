@@ -35,19 +35,7 @@ export class SampleRackService {
     return this.http.get<Rack>(`${this.url}/racks?Id=${id}`);
   }
 
-  getSamplesFromRack(
-    rackId: number,
-    columnNumber: number,
-    rowNumber: number
-  ): Observable<Sample[]> {
-    return this.http.get<Sample[]>(
-      this.url +
-        '?rackId=' +
-        rackId +
-        '&numberOfColumns=' +
-        columnNumber +
-        '&numberOfRows=' +
-        rowNumber
-    );
+  getSamplesFromRack(rackId: number): Observable<Sample[]> {
+    return this.http.get<Sample[]>(this.url + '?rackId=' + rackId);
   }
 }

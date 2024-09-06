@@ -1,5 +1,36 @@
-<p>samples works!</p>
-
-<div *ngFor="let sample of sampleList">
-  <span>{{ sample.identifyingValue }}</span>
+<div class="">
+  <table class="table table-hover align-middle text-center">
+    <thead>
+      <tr>
+        <th scope="col"></th>
+        <!-- TODO show after data retrieved -->
+        <ng-container
+          *ngFor="let _ of [].constructor(rack.numberOfColumns); let i = index"
+        >
+          @if (i+1 >= 1) {
+          <th scope="col">{{ i + 1 }}</th>
+          }
+        </ng-container>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container
+        *ngFor="let _ of [].constructor(rack.numberOfRows); let r = index"
+      >
+        <tr>
+          <th scope="row">{{ r + 1 }}</th>
+          <ng-container
+            *ngFor="
+              let _ of [].constructor(rack.numberOfColumns);
+              let c = index
+            "
+          >
+            <th scope="row">
+              <input type="text" />
+            </th>
+          </ng-container>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
 </div>
