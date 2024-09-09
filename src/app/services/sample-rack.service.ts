@@ -6,6 +6,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import HTTP_OPTIONS from '../constants/HttpOptions';
 import { error } from 'console';
 import { Sample } from '../interfaces/sample';
+import { SampleType } from '../interfaces/sample-type';
 
 @Injectable({
   providedIn: 'root',
@@ -37,5 +38,9 @@ export class SampleRackService {
 
   getSamplesFromRack(rackId: number): Observable<Sample[]> {
     return this.http.get<Sample[]>(this.url + '?rackId=' + rackId);
+  }
+
+  getSamplesTypes(): Observable<SampleType[]> {
+    return this.http.get<SampleType[]>(this.url + '/sampletypes');
   }
 }

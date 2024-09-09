@@ -1,4 +1,22 @@
 <div class="">
+  <h3 class="col-12">Samples</h3>
+  <h5 class="col-12">RackName: {{ rack.rackName }} Rack Id: {{ rack.id }}</h5>
+</div>
+
+<div class="row">
+  <label class="mt-auto mb-auto col-2 form-label">Select Sample Type:</label>
+  <select
+    (change)="onSampleTypeSelect($event)"
+    class="mt-auto mb-auto col-3 dropdown dropdown-header"
+  >
+    @for (sampleType of sampleTypesList; track $index) {
+    <option [value]="sampleType.id">{{ sampleType.name }}</option>
+
+    }
+  </select>
+</div>
+
+<div class="">
   <table class="table table-hover align-middle text-center">
     <thead>
       <tr>
