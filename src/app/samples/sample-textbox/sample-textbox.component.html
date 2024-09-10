@@ -1,0 +1,11 @@
+<div class="mb-auto">
+  <input
+    type="text"
+    [(ngModel)]="this.sample.identifyingValue"
+    class="form-control"
+    (mouseover)="showSampleType()"
+    (mouseout)="hideSampleType()"
+    (focus)="setOriginalValue()"
+    (blur)="sampleEdit(this.sample)"
+  />
+</div>

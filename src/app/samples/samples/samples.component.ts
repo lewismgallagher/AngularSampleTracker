@@ -10,11 +10,12 @@ import { Sample } from '../../interfaces/sample';
 import { RackConfigService } from '../../services/rack-config.service';
 import { sample } from 'rxjs';
 import { SampleType } from '../../interfaces/sample-type';
+import { SampleTextboxComponent } from '../sample-textbox/sample-textbox.component';
 
 @Component({
   selector: 'app-samples',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, SampleTextboxComponent],
   templateUrl: './samples.component.html',
   styleUrl: './samples.component.css',
 })
@@ -94,5 +95,20 @@ export class SamplesComponent {
   onSampleTypeSelect(event: Event) {
     var selection = (event.target as HTMLSelectElement).value;
     this.selectedSampleType = Number(selection);
+  }
+
+  onSampleEdit(sample: Sample) {
+    // todo add logic for saving and checks
+  }
+
+  getSampleFromList(col: number, row: number): Sample {
+    var sample = this.sampleList.find(
+      (x) => x.columnNumber == col && x.rowNumber == row
+    );
+
+    if (sample != undefined) return sample;
+    else {
+      return { columnNumber: col, rowNumber: row };
+    }
   }
 }

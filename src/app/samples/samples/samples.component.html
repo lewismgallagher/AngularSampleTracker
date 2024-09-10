@@ -1,5 +1,8 @@
+<h3 class="col-12">Samples</h3>
+
+@if(sampleList.length > 0){
+
 <div class="">
-  <h3 class="col-12">Samples</h3>
   <h5 class="col-12">RackName: {{ rack.rackName }} Rack Id: {{ rack.id }}</h5>
 </div>
 
@@ -20,13 +23,13 @@
   <table class="table table-hover align-middle text-center">
     <thead>
       <tr>
-        <th scope="col"></th>
+        <th scope="column"></th>
         <!-- TODO show after data retrieved -->
         <ng-container
           *ngFor="let _ of [].constructor(rack.numberOfColumns); let i = index"
         >
           @if (i+1 >= 1) {
-          <th scope="col">{{ i + 1 }}</th>
+          <th scope="column">{{ i + 1 }}</th>
           }
         </ng-container>
       </tr>
@@ -43,8 +46,11 @@
               let c = index
             "
           >
-            <th scope="row">
-              <input type="text" />
+            <th scope="column">
+              <app-sample-textbox
+                [sample]="getSampleFromList(c + 1, r + 1)"
+                (edited)="onSampleEdit($event)"
+              ></app-sample-textbox>
             </th>
           </ng-container>
         </tr>
@@ -52,3 +58,8 @@
     </tbody>
   </table>
 </div>
+} @else{
+<div class="row">
+  <div class="spinner-border m-auto" role="status"></div>
+</div>
+}
