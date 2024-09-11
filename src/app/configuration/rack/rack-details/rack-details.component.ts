@@ -97,7 +97,6 @@ export class RackDetailsComponent {
   }
 
   deleteRack() {
-    console.log('delete clicked');
     this.rackService
       .deleteRack(this.rack.id)
       .pipe(take(1))
@@ -113,7 +112,7 @@ export class RackDetailsComponent {
         },
         error: (error: HttpErrorResponse) => {
           console.log(
-            `failed to create new rack. Response from server: "HTTP Statuscode: ${error.status}: ${error.error}"`
+            `failed to delete rack. Response from server: "HTTP Statuscode: ${error.status}: ${error.error}"`
           );
           this.alertservice.setAlert({
             type: this.alertTypes.danger,

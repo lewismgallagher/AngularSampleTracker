@@ -12,12 +12,12 @@ export class SampleTextboxComponent {
   @Input() sample!: Sample;
   @Output() edited = new EventEmitter<Sample>();
 
-  originalValue!: string;
+  originalValue?: string;
 
   sampleTypeVisible!: boolean;
 
   public setOriginalValue() {
-    // todo add logic
+    this.originalValue = this.sample.identifyingValue;
   }
 
   public sampleEdit(sample: Sample) {

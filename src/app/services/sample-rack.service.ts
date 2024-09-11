@@ -43,4 +43,9 @@ export class SampleRackService {
   getSamplesTypes(): Observable<SampleType[]> {
     return this.http.get<SampleType[]>(this.url + '/sampletypes');
   }
+
+  deleteSample(id: number): Observable<object> {
+    var request = this.http.delete(this.url + '?id=' + id);
+    return request;
+  }
 }

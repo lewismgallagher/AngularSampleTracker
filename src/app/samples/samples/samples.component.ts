@@ -7,10 +7,10 @@ import { SampleRackService } from '../../services/sample-rack.service';
 import { Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Sample } from '../../interfaces/sample';
-import { RackConfigService } from '../../services/rack-config.service';
-import { sample } from 'rxjs';
+import { take } from 'rxjs';
 import { SampleType } from '../../interfaces/sample-type';
 import { SampleTextboxComponent } from '../sample-textbox/sample-textbox.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-samples',
@@ -97,8 +97,46 @@ export class SamplesComponent {
     this.selectedSampleType = Number(selection);
   }
 
-  onSampleEdit(sample: Sample) {
-    // todo add logic for saving and checks
+  isNullOrWhiteSpace(str?: string): boolean {
+    return !str || !str.trim();
+  }
+
+  async onSampleEdit(sample: Sample) {
+    if (sample.identifyingValue === sample.originalIdentifyingValue) return;
+
+    if (
+      this.isNullOrWhiteSpace(sample.identifyingValue) &&
+      this.isNullOrWhiteSpace(sample.originalIdentifyingValue) === false
+    ) {
+      await this.deleteSample(sample.id!);
+      this.RenewSampleInSamplesList(sample);
+    }
+
+    //TODO test below logic on this method and finish rest of method.
+    if (sample.id != 0 || sample.id != undefined) {
+      await this.sampleService.deleteSample(sample.id!);
+      sample.id = undefined;
+    }
+
+    if (this.checkEditedSampleExistsInThisRack(sample)) {
+      var existingSample = this.GetSampleFromRackByEditedSample(sample);
+      this.UpdateExistingSample(existingSample, sample);
+      console.log(existingSample);
+    }
+  }
+
+  async deleteSample(id: number) {
+    await this.sampleService
+      .deleteSample(id)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {},
+        error: (error: HttpErrorResponse) => {
+          console.log(
+            `failed to delete sample. Response from server: "HTTP Statuscode: ${error.status}: ${error.error}"`
+          );
+        },
+      });
   }
 
   getSampleFromList(col: number, row: number): Sample {
@@ -110,5 +148,39 @@ export class SamplesComponent {
     else {
       return { columnNumber: col, rowNumber: row };
     }
+  }
+
+  checkEditedSampleExistsInThisRack(sample: Sample): boolean {
+    return this.sampleList.some(
+      (s) =>
+        s.identifyingValue == sample.identifyingValue &&
+        (s.columnNumber != sample.columnNumber ||
+          s.rowNumber != sample.rowNumber)
+    );
+  }
+
+  GetSampleFromRackByEditedSample(sample: Sample): Sample {
+    return this.sampleList.find(
+      (s) =>
+        s.identifyingValue == sample.identifyingValue &&
+        (s.columnNumber != sample.columnNumber ||
+          s.rowNumber != sample.rowNumber)
+    )!;
+  }
+
+  RenewSampleInSamplesList(existingSample: Sample) {
+    this.sampleList = this.sampleList.filter((x) => x.id != existingSample.id);
+    var sample = this.createEmptySample(
+      existingSample.columnNumber!,
+      existingSample.rowNumber!,
+      existingSample.rackId!
+    );
+    this.sampleList.push(sample);
+  }
+
+  UpdateExistingSample(existingSample: Sample, editedSample: Sample) {
+    editedSample.id = existingSample.id;
+    editedSample.sampleType = existingSample.sampleType;
+    editedSample.sampleTypeId = existingSample.sampleTypeId;
   }
 }
