@@ -56,8 +56,8 @@ export class SamplesComponent {
     );
   }
 
-  public getSamples(id: number, col: number, row: number) {
-    this.sampleService.getSamplesFromRack(id).subscribe({
+  public async getSamples(id: number, col: number, row: number) {
+    await this.sampleService.getSamplesFromRack(id).subscribe({
       next: (response: Sample[]) => {
         this.sampleList = response;
         this.createSampleRack();
@@ -68,8 +68,8 @@ export class SamplesComponent {
     });
   }
 
-  public getRackAndSamples(id: number) {
-    this.sampleService.getRackById(id).subscribe({
+  public async getRackAndSamples(id: number) {
+    await this.sampleService.getRackById(id).subscribe({
       next: (response: Rack) => {
         this.rack = response;
         this.getSampleTypes();
@@ -81,8 +81,8 @@ export class SamplesComponent {
     });
   }
 
-  public getSampleTypes() {
-    this.sampleService.getSamplesTypes().subscribe({
+  public async getSampleTypes() {
+    await this.sampleService.getSamplesTypes().subscribe({
       next: (response: SampleType[]) => {
         this.sampleTypesList = response;
       },
@@ -110,18 +110,74 @@ export class SamplesComponent {
     ) {
       await this.deleteSample(sample.id!);
       this.RenewSampleInSamplesList(sample);
+      console.log('this should return');
+      return;
     }
-
-    //TODO test below logic on this method and finish rest of method.
+    console.log('shouldve returned');
     if (sample.id != 0 || sample.id != undefined) {
       await this.sampleService.deleteSample(sample.id!);
-      sample.id = undefined;
+      sample.id = 0;
+      console.log('delete called');
     }
-
-    if (this.checkEditedSampleExistsInThisRack(sample)) {
+    var sampleExistsInThisRack = this.checkEditedSampleExistsInThisRack(sample);
+    if (sampleExistsInThisRack) {
+      console.log('sample exists check called');
       var existingSample = this.GetSampleFromRackByEditedSample(sample);
       this.UpdateExistingSample(existingSample, sample);
-      console.log(existingSample);
+      console.log(sample);
+      console.log(existingSample.identifyingValue + ' existing sample');
+      this.RenewSampleInSamplesList(existingSample);
+
+      console.log(sample.identifyingValue + ' new edited sample');
+      console.log(existingSample.identifyingValue + ' new existing sample');
+    }
+
+    await this.sampleService
+      .checkSampleExists(sample.identifyingValue)
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          if (sampleExistsInThisRack === false && res) {
+            console.log(res);
+            this.sampleService
+              .getSampleByIdentifyingValue(sample.identifyingValue)
+              .pipe(take(1))
+              .subscribe({
+                next: (s) => {
+                  this.UpdateExistingSample(s, sample);
+                  console.log(sample);
+
+                  this.sampleService
+                    .updateSample(sample)
+                    .pipe(take(1))
+                    .subscribe({
+                      next: () => {
+                        console.log(sample);
+                        sample.originalIdentifyingValue =
+                          sample.identifyingValue;
+                      },
+                    });
+                },
+              });
+          }
+        },
+      });
+
+    if (sample.id === 0 || sample.id === undefined) {
+      sample.sampleTypeId = this.selectedSampleType;
+      sample.sampleType = this.sampleTypesList.find(
+        (x) => x.id === this.selectedSampleType
+      )?.name;
+      await this.sampleService
+        .createSample(sample)
+        .pipe(take(1))
+        .subscribe({
+          next: (res) => {
+            console.log('sample created');
+            console.log(sample);
+            sample.originalIdentifyingValue = sample.identifyingValue;
+          },
+        });
     }
   }
 

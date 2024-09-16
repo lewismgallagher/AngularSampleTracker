@@ -36,6 +36,18 @@ export class SampleRackService {
     return this.http.get<Rack>(`${this.url}/racks?Id=${id}`);
   }
 
+  checkSampleExists(identifyingValue?: string): Observable<boolean> {
+    return this.http.get<boolean>(
+      `${this.url}/checksampleexists?IdentifyingValue=${identifyingValue}`
+    );
+  }
+
+  getSampleByIdentifyingValue(identifyingValue?: string): Observable<Sample> {
+    return this.http.get<Sample>(
+      `${this.url}/sampleidbyid?IdentifyingValue=${identifyingValue}`
+    );
+  }
+
   getSamplesFromRack(rackId: number): Observable<Sample[]> {
     return this.http.get<Sample[]>(this.url + '?rackId=' + rackId);
   }
@@ -46,6 +58,16 @@ export class SampleRackService {
 
   deleteSample(id: number): Observable<object> {
     var request = this.http.delete(this.url + '?id=' + id);
+    return request;
+  }
+
+  createSample(sample: Sample): Observable<object> {
+    var request = this.http.post(this.url, sample, HTTP_OPTIONS);
+    return request;
+  }
+
+  updateSample(sample: Sample): Observable<object> {
+    var request = this.http.put(this.url, sample, HTTP_OPTIONS);
     return request;
   }
 }

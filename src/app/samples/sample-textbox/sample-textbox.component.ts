@@ -17,6 +17,7 @@ export class SampleTextboxComponent {
   sampleTypeVisible!: boolean;
 
   public setOriginalValue() {
+    console.log('original value update called');
     this.originalValue = this.sample.identifyingValue;
   }
 
