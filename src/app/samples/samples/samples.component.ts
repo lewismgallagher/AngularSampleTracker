@@ -7,7 +7,7 @@ import { SampleRackService } from '../../services/sample-rack.service';
 import { Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Sample } from '../../interfaces/sample';
-import { take } from 'rxjs';
+import { switchMap, take } from 'rxjs';
 import { SampleType } from '../../interfaces/sample-type';
 import { SampleTextboxComponent } from '../sample-textbox/sample-textbox.component';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -56,8 +56,8 @@ export class SamplesComponent {
     );
   }
 
-  public async getSamples(id: number, col: number, row: number) {
-    await this.sampleService.getSamplesFromRack(id).subscribe({
+  public getSamples(id: number, col: number, row: number) {
+    this.sampleService.getSamplesFromRack(id).subscribe({
       next: (response: Sample[]) => {
         this.sampleList = response;
         this.createSampleRack();
@@ -68,8 +68,10 @@ export class SamplesComponent {
     });
   }
 
-  public async getRackAndSamples(id: number) {
-    await this.sampleService.getRackById(id).subscribe({
+  //todo chain so they run one after the other.
+
+  public getRackAndSamples(id: number) {
+    this.sampleService.getRackById(id).subscribe({
       next: (response: Rack) => {
         this.rack = response;
         this.getSampleTypes();
@@ -81,8 +83,8 @@ export class SamplesComponent {
     });
   }
 
-  public async getSampleTypes() {
-    await this.sampleService.getSamplesTypes().subscribe({
+  public getSampleTypes() {
+    this.sampleService.getSamplesTypes().subscribe({
       next: (response: SampleType[]) => {
         this.sampleTypesList = response;
       },
@@ -92,18 +94,21 @@ export class SamplesComponent {
     });
   }
 
-  onSampleTypeSelect(event: Event) {
+  public onSampleTypeSelect(event: Event) {
     var selection = (event.target as HTMLSelectElement).value;
     this.selectedSampleType = Number(selection);
   }
 
-  isNullOrWhiteSpace(str?: string): boolean {
+  public isNullOrWhiteSpace(str?: string): boolean {
     return !str || !str.trim();
   }
 
   async onSampleEdit(sample: Sample) {
+    // if not edited return
+
     if (sample.identifyingValue === sample.originalIdentifyingValue) return;
 
+    // logic for deletion by removing unique value in textbox
     if (
       this.isNullOrWhiteSpace(sample.identifyingValue) &&
       this.isNullOrWhiteSpace(sample.originalIdentifyingValue) === false
@@ -113,57 +118,69 @@ export class SamplesComponent {
       console.log('this should return');
       return;
     }
-    console.log('shouldve returned');
-    if (sample.id != 0 || sample.id != undefined) {
-      await this.sampleService.deleteSample(sample.id!);
+
+    // delete old sample from rack during overwrite
+    if (sample.id !== undefined) {
+      await this.deleteSample(sample.id!);
+      console.log(sample.id);
       sample.id = 0;
       console.log('delete called');
     }
-    var sampleExistsInThisRack = this.checkEditedSampleExistsInThisRack(sample);
+
+    // check if sample exists in this rack
+
+    let sampleExistsInThisRack = this.checkEditedSampleExistsInThisRack(sample);
+
     if (sampleExistsInThisRack) {
       console.log('sample exists check called');
       var existingSample = this.GetSampleFromRackByEditedSample(sample);
       this.UpdateExistingSample(existingSample, sample);
-      console.log(sample);
-      console.log(existingSample.identifyingValue + ' existing sample');
+
+      await this.sampleService
+        .updateSample(sample)
+        .pipe(take(1))
+        .subscribe({
+          next: (updatedsample) => {
+            console.log(updatedsample);
+          },
+        });
+
       this.RenewSampleInSamplesList(existingSample);
 
-      console.log(sample.identifyingValue + ' new edited sample');
-      console.log(existingSample.identifyingValue + ' new existing sample');
+      return;
     }
 
-    await this.sampleService
-      .checkSampleExists(sample.identifyingValue)
-      .pipe(take(1))
-      .subscribe({
-        next: (res) => {
-          if (sampleExistsInThisRack === false && res) {
-            console.log(res);
-            this.sampleService
-              .getSampleByIdentifyingValue(sample.identifyingValue)
-              .pipe(take(1))
-              .subscribe({
-                next: (s) => {
-                  this.UpdateExistingSample(s, sample);
-                  console.log(sample);
+    //Check if sample exists on another rack and move it here
 
-                  this.sampleService
-                    .updateSample(sample)
-                    .pipe(take(1))
-                    .subscribe({
-                      next: () => {
-                        console.log(sample);
-                        sample.originalIdentifyingValue =
-                          sample.identifyingValue;
-                      },
-                    });
-                },
-              });
-          }
-        },
-      });
-
-    if (sample.id === 0 || sample.id === undefined) {
+    if (sampleExistsInThisRack === false) {
+      this.sampleService
+        .checkSampleExists(sample.identifyingValue)
+        .pipe(take(1))
+        .subscribe({
+          next: (sampleExists) => {
+            if (sampleExists) {
+              this.sampleService
+                .getSampleByIdentifyingValue(sample.identifyingValue)
+                .pipe(take(1))
+                .subscribe({
+                  next: (existingSample) => {
+                    this.UpdateExistingSample(existingSample, sample);
+                    this.sampleService
+                      .updateSample(sample)
+                      .pipe(take(1))
+                      .subscribe({
+                        next: (updatedsample) => {
+                          console.log(updatedsample);
+                          return;
+                        },
+                      });
+                  },
+                });
+            }
+          },
+        });
+    }
+    if (sample.id == 0 || sample.id == undefined) {
       sample.sampleTypeId = this.selectedSampleType;
       sample.sampleType = this.sampleTypesList.find(
         (x) => x.id === this.selectedSampleType
@@ -238,5 +255,6 @@ export class SamplesComponent {
     editedSample.id = existingSample.id;
     editedSample.sampleType = existingSample.sampleType;
     editedSample.sampleTypeId = existingSample.sampleTypeId;
+    editedSample.originalIdentifyingValue = editedSample.identifyingValue;
   }
 }
