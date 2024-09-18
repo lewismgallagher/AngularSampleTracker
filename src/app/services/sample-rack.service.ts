@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Rack } from '../interfaces/rack';
 import { PostRack } from '../interfaces/postRack';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, Subscription } from 'rxjs';
+import { firstValueFrom, Observable, of, Subscription } from 'rxjs';
 import HTTP_OPTIONS from '../constants/HttpOptions';
 import { error } from 'console';
 import { Sample } from '../interfaces/sample';
@@ -32,42 +32,51 @@ export class SampleRackService {
     );
   }
 
-  getRackById(id?: number): Observable<Rack> {
-    return this.http.get<Rack>(`${this.url}/racks?Id=${id}`);
-  }
-
-  checkSampleExists(identifyingValue?: string): Observable<boolean> {
-    return this.http.get<boolean>(
-      `${this.url}/checksampleexists?IdentifyingValue=${identifyingValue}`
+  async getRackById(id?: number): Promise<Rack> {
+    return await firstValueFrom(
+      this.http.get<Rack>(`${this.url}/racks?Id=${id}`)
     );
   }
 
-  getSampleByIdentifyingValue(identifyingValue?: string): Observable<Sample> {
-    return this.http.get<Sample>(
-      `${this.url}/sampleidbyid?IdentifyingValue=${identifyingValue}`
+  async checkSampleExists(identifyingValue?: string): Promise<boolean> {
+    return await firstValueFrom(
+      this.http.get<boolean>(
+        `${this.url}/checksampleexists?IdentifyingValue=${identifyingValue}`
+      )
     );
   }
 
-  getSamplesFromRack(rackId: number): Observable<Sample[]> {
-    return this.http.get<Sample[]>(this.url + '?rackId=' + rackId);
+  async getSampleByIdentifyingValue(
+    identifyingValue?: string
+  ): Promise<Sample> {
+    return await firstValueFrom(
+      this.http.get<Sample>(
+        `${this.url}/sampleidbyid?IdentifyingValue=${identifyingValue}`
+      )
+    );
   }
 
-  getSamplesTypes(): Observable<SampleType[]> {
-    return this.http.get<SampleType[]>(this.url + '/sampletypes');
+  async getSamplesFromRack(rackId: number): Promise<Sample[]> {
+    return firstValueFrom(
+      this.http.get<Sample[]>(this.url + '?rackId=' + rackId)
+    );
   }
 
-  deleteSample(id: number): Observable<object> {
-    var request = this.http.delete(this.url + '?id=' + id);
-    return request;
+  async getSamplesTypes(): Promise<SampleType[]> {
+    return await firstValueFrom(
+      this.http.get<SampleType[]>(this.url + '/sampletypes')
+    );
   }
 
-  createSample(sample: Sample): Observable<object> {
-    var request = this.http.post(this.url, sample, HTTP_OPTIONS);
-    return request;
+  async deleteSample(id: number): Promise<object> {
+    return await firstValueFrom(this.http.delete(this.url + '?id=' + id));
   }
 
-  updateSample(sample: Sample): Observable<object> {
-    var request = this.http.put(this.url, sample, HTTP_OPTIONS);
-    return request;
+  async createSample(sample: Sample): Promise<object> {
+    return await firstValueFrom(this.http.post(this.url, sample, HTTP_OPTIONS));
+  }
+
+  async updateSample(sample: Sample): Promise<object> {
+    return await firstValueFrom(this.http.put(this.url, sample, HTTP_OPTIONS));
   }
 }

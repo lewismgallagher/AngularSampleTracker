@@ -31,7 +31,7 @@ export class SamplesComponent {
   constructor() {
     const rackId = Number(this.route.snapshot.params['id']);
 
-    this.getRackAndSamples(rackId);
+    this.getRackSamplesAndSampleTypes(rackId);
   }
 
   public createEmptySample(col: number, row: number, rackId: number): Sample {
@@ -56,42 +56,11 @@ export class SamplesComponent {
     );
   }
 
-  public getSamples(id: number, col: number, row: number) {
-    this.sampleService.getSamplesFromRack(id).subscribe({
-      next: (response: Sample[]) => {
-        this.sampleList = response;
-        this.createSampleRack();
-      },
-      error: (error: Error) => {
-        console.log(error);
-      },
-    });
-  }
-
-  //todo chain so they run one after the other.
-
-  public getRackAndSamples(id: number) {
-    this.sampleService.getRackById(id).subscribe({
-      next: (response: Rack) => {
-        this.rack = response;
-        this.getSampleTypes();
-        this.getSamples(id, response.numberOfColumns, response.numberOfRows);
-      },
-      error: (error: Error) => {
-        console.log(error);
-      },
-    });
-  }
-
-  public getSampleTypes() {
-    this.sampleService.getSamplesTypes().subscribe({
-      next: (response: SampleType[]) => {
-        this.sampleTypesList = response;
-      },
-      error: (error: Error) => {
-        console.log(error);
-      },
-    });
+  public async getRackSamplesAndSampleTypes(id: number) {
+    this.rack = await this.sampleService.getRackById(id);
+    this.sampleTypesList = await this.sampleService.getSamplesTypes();
+    this.sampleList = await this.sampleService.getSamplesFromRack(this.rack.id);
+    this.createSampleRack();
   }
 
   public onSampleTypeSelect(event: Event) {
@@ -113,7 +82,7 @@ export class SamplesComponent {
       this.isNullOrWhiteSpace(sample.identifyingValue) &&
       this.isNullOrWhiteSpace(sample.originalIdentifyingValue) === false
     ) {
-      await this.deleteSample(sample.id!);
+      await this.sampleService.deleteSample(sample.id!);
       this.RenewSampleInSamplesList(sample);
       console.log('this should return');
       return;
@@ -121,7 +90,7 @@ export class SamplesComponent {
 
     // delete old sample from rack during overwrite
     if (sample.id !== undefined) {
-      await this.deleteSample(sample.id!);
+      await this.sampleService.deleteSample(sample.id!);
       console.log(sample.id);
       sample.id = 0;
       console.log('delete called');
@@ -136,80 +105,34 @@ export class SamplesComponent {
       var existingSample = this.GetSampleFromRackByEditedSample(sample);
       this.UpdateExistingSample(existingSample, sample);
 
-      await this.sampleService
-        .updateSample(sample)
-        .pipe(take(1))
-        .subscribe({
-          next: (updatedsample) => {
-            console.log(updatedsample);
-          },
-        });
+      await this.sampleService.updateSample(sample);
 
       this.RenewSampleInSamplesList(existingSample);
 
       return;
     }
 
-    //Check if sample exists on another rack and move it here
-
     if (sampleExistsInThisRack === false) {
-      this.sampleService
-        .checkSampleExists(sample.identifyingValue)
-        .pipe(take(1))
-        .subscribe({
-          next: (sampleExists) => {
-            if (sampleExists) {
-              this.sampleService
-                .getSampleByIdentifyingValue(sample.identifyingValue)
-                .pipe(take(1))
-                .subscribe({
-                  next: (existingSample) => {
-                    this.UpdateExistingSample(existingSample, sample);
-                    this.sampleService
-                      .updateSample(sample)
-                      .pipe(take(1))
-                      .subscribe({
-                        next: (updatedsample) => {
-                          console.log(updatedsample);
-                          return;
-                        },
-                      });
-                  },
-                });
-            }
-          },
-        });
+      let sampleExistsInOtherRack = await this.sampleService.checkSampleExists(
+        sample.identifyingValue
+      );
+      if (sampleExistsInOtherRack) {
+        existingSample = await this.sampleService.getSampleByIdentifyingValue(
+          sample.identifyingValue
+        );
+        this.UpdateExistingSample(existingSample, sample);
+        await this.sampleService.updateSample(sample);
+        sample.originalIdentifyingValue = sample.identifyingValue;
+      }
     }
     if (sample.id == 0 || sample.id == undefined) {
       sample.sampleTypeId = this.selectedSampleType;
       sample.sampleType = this.sampleTypesList.find(
         (x) => x.id === this.selectedSampleType
       )?.name;
-      await this.sampleService
-        .createSample(sample)
-        .pipe(take(1))
-        .subscribe({
-          next: (res) => {
-            console.log('sample created');
-            console.log(sample);
-            sample.originalIdentifyingValue = sample.identifyingValue;
-          },
-        });
+      await this.sampleService.createSample(sample);
+      sample.originalIdentifyingValue = sample.identifyingValue;
     }
-  }
-
-  async deleteSample(id: number) {
-    await this.sampleService
-      .deleteSample(id)
-      .pipe(take(1))
-      .subscribe({
-        next: () => {},
-        error: (error: HttpErrorResponse) => {
-          console.log(
-            `failed to delete sample. Response from server: "HTTP Statuscode: ${error.status}: ${error.error}"`
-          );
-        },
-      });
   }
 
   getSampleFromList(col: number, row: number): Sample {
