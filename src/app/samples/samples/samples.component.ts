@@ -72,7 +72,7 @@ export class SamplesComponent {
     return !str || !str.trim();
   }
 
-  async onSampleEdit(sample: Sample) {
+  public async onSampleEdit(sample: Sample) {
     // if not edited return
 
     if (sample.identifyingValue === sample.originalIdentifyingValue) return;
@@ -84,16 +84,13 @@ export class SamplesComponent {
     ) {
       await this.sampleService.deleteSample(sample.id!);
       this.RenewSampleInSamplesList(sample);
-      console.log('this should return');
       return;
     }
 
-    // delete old sample from rack during overwrite
+    // delete existing sample from rack during overwrite
     if (sample.id !== undefined) {
       await this.sampleService.deleteSample(sample.id!);
-      console.log(sample.id);
       sample.id = 0;
-      console.log('delete called');
     }
 
     // check if sample exists in this rack
@@ -101,14 +98,15 @@ export class SamplesComponent {
     let sampleExistsInThisRack = this.checkEditedSampleExistsInThisRack(sample);
 
     if (sampleExistsInThisRack) {
-      console.log('sample exists check called');
       var existingSample = this.GetSampleFromRackByEditedSample(sample);
+
       this.UpdateExistingSample(existingSample, sample);
 
       await this.sampleService.updateSample(sample);
+      sample.originalIdentifyingValue = sample.identifyingValue;
 
       this.RenewSampleInSamplesList(existingSample);
-
+      this.sampleList.push(sample);
       return;
     }
 
@@ -158,14 +156,14 @@ export class SamplesComponent {
   GetSampleFromRackByEditedSample(sample: Sample): Sample {
     return this.sampleList.find(
       (s) =>
-        s.identifyingValue == sample.identifyingValue &&
-        (s.columnNumber != sample.columnNumber ||
-          s.rowNumber != sample.rowNumber)
+        s.identifyingValue === sample.identifyingValue &&
+        (s.columnNumber !== sample.columnNumber ||
+          s.rowNumber !== sample.rowNumber)
     )!;
   }
 
   RenewSampleInSamplesList(existingSample: Sample) {
-    this.sampleList = this.sampleList.filter((x) => x.id != existingSample.id);
+    this.sampleList = this.sampleList.filter((s) => s.id !== existingSample.id);
     var sample = this.createEmptySample(
       existingSample.columnNumber!,
       existingSample.rowNumber!,
